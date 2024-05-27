@@ -13,7 +13,7 @@
 
     <div class="stats">
       <span>Last Edited {{ noteStore.curTextarea.dateUpdated }} </span>
-      <span>{{ wordCount }}</span>
+      <span class="center">{{ wordCount }} <IconTrash @click="deleteNote"/></span>
     </div>
 
   </div>
@@ -21,6 +21,8 @@
 </template>
 
 <script lang="ts" setup>
+import IconTrash from '@/assets/images/IconTrash.vue';
+
 import { useNoteStore } from '@/stores/noteStore'
 import { computed } from 'vue';
 let typingTimeout: number | undefined;
@@ -50,6 +52,15 @@ const wordCount = computed(() => {
   const paragraphs = value.split(/\n\n+/).length - 1
   return `Chars: ${char} | Words: ${word} | Paragraphs: ${paragraphs}`
 })
+
+const emit = defineEmits<{
+  (e: 'activateDelete', message: string, sectionName: string): void
+}>()
+
+const deleteNote = () => {
+  emit('activateDelete', `Delete ${noteStore.curTextarea.noteName}?`, noteStore.curTextarea.id)
+}
+
 
 </script>
 
@@ -95,4 +106,11 @@ const wordCount = computed(() => {
   justify-content: space-between;
   margin-top: 10px;
 }
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 </style>

@@ -3,7 +3,8 @@
     <IconTripleDot @click="toggleContext" />
     <div class="dropdown" :class="{ 'hide': hide == true }" ref="refDropdown">
       <ActiveButton class="button" color="dark" @click="renameSection">Rename</ActiveButton>
-      <ActiveButton class="button" color="dark">Delete</ActiveButton>
+      <ActiveButton class="button" color="dark" @click="deleteSection"
+        :disabled="noteStore.folders[noteStore.currentFolder].section_sort.length === 1">Delete</ActiveButton>
     </div>
   </div>
 </template>
@@ -12,18 +13,20 @@
 <script lang="ts" setup>
 import IconTripleDot from '@/assets/images/IconTripleDot.vue';
 import ActiveButton from '@/components/ActiveButton.vue';
-import { useNoteStore } from '@/stores/noteStore'
 import { onClickOutside } from '@vueuse/core'
+import { useNoteStore } from '@/stores/noteStore'
+
 
 import { ref, type Ref } from 'vue'
 
 const refDropdown = ref(null)
+const noteStore = useNoteStore()
 
 const hide: Ref<boolean> = ref(true)
 const emit = defineEmits<{
   (e: 'activateRename', sectionName: string): void
+  (e: 'activateDelete', message: string, sectionName: string): void
 }>()
-// const noteStore = useNoteStore()
 
 const props = defineProps({
   sectionName: {
@@ -45,6 +48,10 @@ onClickOutside(refDropdown, () => hide.value = true)
 const renameSection = () => {
   emit('activateRename', props.sectionName)
   hide.value = true
+}
+
+const deleteSection = () => {
+  emit('activateDelete', `Delete ${props.sectionName}`, props.sectionName)
 }
 
 </script>

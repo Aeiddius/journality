@@ -5,13 +5,13 @@
     </template>
 
     <template #message>
-      <input type="text" class="input" v-model="sectionName" @input="isError = false" @keydown.enter="createNewSection"
+      <input type="text" class="input" v-model="sectionName" @input="isError = false" @keydown.enter="createSection"
         ref="refInput" @keydown.esc="showModal = false" />
       <span v-show="isError" class="error">Section already exists</span>
     </template>
 
     <template #buttons>
-      <ActiveButton class="button underline" color="light" @click="createNewSection">Create</ActiveButton>
+      <ActiveButton class="button underline" color="light" @click="createSection">Create</ActiveButton>
       <ActiveButton class="button" color="light" @click="showModal = false">Cancel</ActiveButton>
     </template>
   </ModalBase>
@@ -44,27 +44,17 @@ defineExpose({
 })
 
 // Create 
-const createNewSection = async () => {
-  // Don't create if section already exists
-  if (noteStore.folders[noteStore.currentFolder].section_sort.includes(sectionName.value)) {
+const createSection = async () => {
+  const res: Boolean = await noteStore.createSection(sectionName.value,
+    () => showModal.value = false)
+
+  if (!res) {
     isError.value = true
     return
   }
-
-  // Create new section
-  noteStore.folders[noteStore.currentFolder].section[sectionName.value] = {
-    note: {
-    }, note_sort: []
-  }
-  // Add new section to section sort
-  noteStore.folders[noteStore.currentFolder].section_sort.push(sectionName.value)
-
-  // Hide modal
-  showModal.value = false
-
-  // update database
-  await noteStore.updateNotes()
 }
+
+
 </script>
 
 <style lang="scss" scoped>

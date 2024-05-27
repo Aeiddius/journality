@@ -52,45 +52,18 @@ defineExpose({
   handleShowModal
 })
 
+
 // Create 
 const renameSection = async () => {
-  if (sectionName.value == origSectionName.value) {
+  const res: Boolean = await noteStore.renameSection(sectionName.value, origSectionName.value,
+    () => isError.value = true,
+    () => {emit('updateInit');showModal.value = false}
+  )
+  if (!res) {
     showModal.value = false
-    return
   }
-
-  // Don't create if section already exists
-  if (noteStore.folders[noteStore.currentFolder].section_sort.includes(sectionName.value)) {
-    isError.value = true
-    return
-  }
-
-  // Rename section map entry
-  const o = noteStore.folders[noteStore.currentFolder].section
-  const s = noteStore.folders[noteStore.currentFolder].section_sort
-
-  o[sectionName.value] = o[origSectionName.value]
-  delete o[origSectionName.value]
-
-  // Rename section_sort element
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] === origSectionName.value) {
-      s[i] = sectionName.value
-      console.log("DONE", s[i])
-      break
-    }
-  }
-
-  // Replace last_section if it's the current entry
-  if (noteStore.folders[noteStore.currentFolder].last_section === origSectionName.value) {
-    noteStore.folders[noteStore.currentFolder].last_section = sectionName.value
-  }
-
-  showModal.value = false
-  emit('updateInit')
-
-  await noteStore.updateNotes()
 }
+ 
 </script>
 
 <style lang="scss" scoped>

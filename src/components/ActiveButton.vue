@@ -1,5 +1,9 @@
 <template>
-  <button :class="[color == 'dark' ? 'dark' : 'light', isActive ? `${color}-active` : '']">
+  <button :class="[
+            color == 'dark' ? 'dark' : 'light',
+            isActive ? `${color}-active` : '',
+            disabled == true ? 'disabled' : '']" 
+          :disabled="disabled">
     <slot />
   </button>
 </template>
@@ -15,6 +19,10 @@ defineProps({
     default: 'dark'
   },
   isActive: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
     type: Boolean,
     default: false
   }
@@ -73,5 +81,10 @@ button {
 
 .light-active {
   border-bottom: 1px solid $primary;
+}
+
+.disabled {
+  background-color: lighten($dark, 10%) !important;
+  color: gray;
 }
 </style>

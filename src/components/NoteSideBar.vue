@@ -2,6 +2,7 @@
   <ModalNewNote ref="createModalRef" />
   <ModalNewSection ref="createSectionModalref" />
   <ModalRenameSection ref="renameModalref" @updateInit="openSidebarInit" />
+  <ModalDelete ref="deleteSectionModalref" />
 
   <div class="loading" :class="[!noteStore.loaded ? 'show-loading' : '']">
     <h1 class="noselect">Loading</h1>
@@ -34,7 +35,8 @@
           </div>
           <div class="side">
             <IconNoteCreate :size="18" @click="modals.handleNewNote(sectionName)" />
-            <SectionMenu :sectionName="sectionName" @activateRename="(val) => renameModalref.handleShowModal(val)" />
+            <SectionMenu :sectionName="sectionName" @activateRename="(val) => renameModalref.handleShowModal(val)"
+              @activateDelete="(msg: string, sN: string) => deleteSectionModalref.handleShowModal(msg, sN)" />
 
           </div>
         </div>
@@ -80,6 +82,7 @@ import NoteSideChapter from '@/components/NoteSideChapter.vue';
 import ModalNewNote from '@/components/ModalNewNote.vue';
 import ModalNewSection from '@/components/ModalNewSection.vue';
 import ModalRenameSection from '@/components/ModalRenameSection.vue';
+import ModalDelete from './ModalDelete.vue';
 
 // Import composable
 import { useTimestamp } from '@/composables/useTimestamp'
@@ -91,6 +94,7 @@ import { ref, watch } from 'vue';
 const createModalRef = ref()
 const createSectionModalref = ref()
 const renameModalref = ref()
+const deleteSectionModalref = ref()
 
 const modals = {
   handleShowChapters(id: string) {
