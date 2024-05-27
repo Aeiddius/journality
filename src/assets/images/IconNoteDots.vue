@@ -1,0 +1,43 @@
+<template>
+  <svg :width="size" :height="size" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M9.5 13C9.5 13.8284 8.82843 14.5 8 14.5C7.17157 14.5 6.5 13.8284 6.5 13C6.5 12.1716 7.17157 11.5 8 11.5C8.82843 11.5 9.5 12.1716 9.5 13ZM9.5 8C9.5 8.82843 8.82843 9.5 8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8ZM9.5 3C9.5 3.82843 8.82843 4.5 8 4.5C7.17157 4.5 6.5 3.82843 6.5 3C6.5 2.17157 7.17157 1.5 8 1.5C8.82843 1.5 9.5 2.17157 9.5 3Z" />
+  </svg>
+</template>
+
+<script lang="ts" setup>
+
+defineProps({
+  size: {
+    type: Number,
+    default: 20,
+  }
+})
+
+</script>
+
+<style lang="scss" scoped>
+svg {
+  transition: all 0.3s ease;
+  transform: scale(1);
+
+  path {
+    fill: lighten($primary, 40%);
+    transition: all 0.3s ease;
+
+  }
+
+  &:hover {
+    cursor: pointer;
+
+    path {
+      fill: white;
+
+    }
+  }
+
+  &:active {
+    transform: scale(1.2);
+  }
+}
+</style>

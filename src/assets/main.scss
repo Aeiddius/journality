@@ -1,0 +1,151 @@
+@import "scss-reset/reset";
+@import "./stylesheet.scss";
+
+html {
+  font-family: "Inter";
+  font-weight: normal;
+  font-style: normal;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.p-0 {
+  padding: 0px !important;
+}
+
+.wrapper-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.font-light {
+  font-family: "Inter";
+  font-weight: 300;
+  font-style: normal;
+}
+
+.font-bold {
+  font-family: "Inter";
+  font-weight: bold;
+  font-style: normal;
+}
+
+.font-regular {
+  font-family: "Inter";
+  font-weight: normal;
+  font-style: normal;
+}
+
+.color-fd-60 {
+  color: lighten($primary, 60%);
+}
+.color-fd-40 {
+  color: lighten($primary, 40%);
+}
+
+.full-height {
+  height: 70vh;
+}
+
+.router-link {
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 1px 5px;
+  text-decoration: none;
+  color: $primary;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+  transition: outline 0.3s ease;
+}
+
+.router-link__dark {
+  color: white;
+  &:hover {
+    border-bottom: 1px solid white;
+  }
+}
+
+.router-link__light {
+  color: $primary;
+  &:hover {
+    border-bottom: 1px solid $primary;
+  }
+}
+
+.font-color-light {
+  color: white;
+}
+
+.font-color-dark {
+  color: dark;
+}
+
+.stop-scrolling {
+  overflow: hidden !important;
+}
+
+.text {
+  font-size: 0.8em;
+}
+
+.underline {
+  border-bottom: 1px solid $primary;
+}
+
+.input {
+  padding: 5px;
+  border: 0px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.scrollbar-dark {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgb(109, 109, 109);
+  }
+  &::-webkit-scrollbar-track {
+    background: $primary;
+  }
+}
+
+.hide {
+  display: none;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.active-note {
+  background-color: #242424;
+  color: $dark;
+}
+
+.disable-icon {
+  // background-color: red;
+
+  &:hover {
+    path {
+      fill: blue;
+    }
+  }
+}
