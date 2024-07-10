@@ -12,18 +12,18 @@
         <input type="text" name="username" id="username" aria-label="Username" hidden autocomplete="username">
         <span>
           <label for="email">Email</label>
-          <input type="email" name="email" id="email" autocomplete="username email" placeholder="jondoe@email.com">
+          <input type="email" v-model="credentials.email" name="email" id="email" autocomplete="username email" placeholder="jondoe@email.com">
         </span>
         <span>
           <label for="password">Password</label>
-          <input type="password" name="password" id="password" autocomplete="new-password">
+          <input type="password" v-model="credentials.password" name="password" id="password" autocomplete="new-password">
         </span>
         <span v-if="$route.params.id === 'register'">
           <label for="confirmpass">Confirm Password</label>
-          <input type="password" name="confirmpass" id="confirmpass" autocomplete="new-password">
+          <input type="password" v-model="credentials.passwordRepeat" name="confirmpass" id="confirmpass" autocomplete="new-password">
         </span>
         <div class="submit">
-          <ActiveButton>{{ useCapitalize($route.params.id as string) }}</ActiveButton>
+          <ActiveButton @click="onSubmit">{{ useCapitalize($route.params.id as string) }}</ActiveButton>
         </div>
       </form>
     </div>
@@ -37,16 +37,20 @@
 import NavBar from '@/layout/NavBar.vue';
 import ActiveButton from '@/components/ActiveButton.vue';
 import IconGithub from '@/assets/images/IconGithub.vue'
+import { useAuthStore } from '@/stores/authStore';
 
-import { ref, onMounted, type Ref } from 'vue'
+
+import { ref, reactive, onMounted, type Ref } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 import { useCapitalize } from '@/composables/useCapitalize'
-
+import type { Credentials } from '@/types/Credentials'
 
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
+
 
 const isRegister: Ref<boolean> = ref(false)
 
@@ -68,6 +72,26 @@ const changeAuth = (mode: AuthValue): void => {
   router.push(`/auth/${mode}`)
 }
 
+
+const onSubmit = () => {
+  if (!credentials.email || !credentials.password) {
+    alert('Please enter an email and password')
+  }
+  else {
+    if (isRegister.value) {
+      authStore.registerUser(credentials)
+    } else {
+      authStore.loginUser(credentials)
+    }
+  }
+}
+
+
+const credentials = reactive<Credentials>({  
+  email: 'asdasd@gmail.com',
+  password: '123456',
+  passwordRepeat: '124425'
+})
 
 </script>
 

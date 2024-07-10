@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { RouterView } from 'vue-router'
 import { useNoteStore } from '@/stores/noteStore';
+import { useAuthStore } from '@/stores/authStore';
 
+const authStore = useAuthStore()
 const noteStore = useNoteStore()
-noteStore.getNotes()
+
+
+onMounted( async () => {
+  await authStore.init()
+})
 
 </script>
 

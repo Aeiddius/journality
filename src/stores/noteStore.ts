@@ -1,13 +1,15 @@
 import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/js/firebase'
-import { collection, getDocs, updateDoc, doc, Timestamp } from 'firebase/firestore'
+import { collection, getDocs, setDoc, doc, Timestamp } from 'firebase/firestore'
 
 // Import Types
 import { type Folder } from '@/types/Folder'
 import { type Textarea } from '@/types/Textarea'
 
 import { useTimestamp } from '@/composables/useTimestamp'
+
+import { useAuthStore } from '@/stores/authStore'
 
 // Main Function
 export const useNoteStore = defineStore('noteStore', () => {
@@ -27,7 +29,42 @@ export const useNoteStore = defineStore('noteStore', () => {
   })
 
   // Firebase Note Reference
-  const noteRef = collection(db, 'users', 'aeid-13', 'folders')
+  let noteRef = collection(db, 'users', 'aeid-13', 'folders')
+
+
+  const init = () => {
+    const authStore = useAuthStore()   
+
+    noteRef = collection(db, "users", authStore.user.id, "folders")
+    console.log("FOLDER VALUE: ", folders.value)
+    getNotes()
+  }
+
+  const createNewUserNote = async () => {
+    // const authStore = useAuthStore()   
+
+    // noteRef = collection(db, "users", authStore.user.id, "folders")
+
+    folders.value['default'] = {
+      title: 'Test Folder',
+      last_note: '',
+      last_section: '',
+      section: {
+        'section_1': {
+          note: { '8176rm1': {
+            date_created: Timestamp.now(),
+            date_updated: Timestamp.now(),
+            name: 'note_1',
+            value: 'First note'
+          }},
+          note_sort: ['8176rm1']
+        }
+      },
+      section_sort: []
+    }
+    console.log("registered")
+    await updateNotes()
+  }
 
   // Get Notes from the database
   const getNotes = async () => {
@@ -35,7 +72,6 @@ export const useNoteStore = defineStore('noteStore', () => {
 
     querySnapshot.forEach((doc) => {
       folders.value[doc.id] = doc.data() as Folder
-      console.log('This: ', folders.value)
     })
 
     loaded.value = true
@@ -44,10 +80,10 @@ export const useNoteStore = defineStore('noteStore', () => {
   // Updates Note Databse
   const updateNotes = async () => {
     // folders.value['folder1'].section['section1'].note['pad1'].value = 'asdas'
-    await updateDoc(doc(noteRef, 'folder1'), {
-      ...folders.value['folder1']
+    const folderName: string = currentFolder.value
+    await setDoc(doc(noteRef, folderName), {
+      ...folders.value[folderName]
     })
-    console.log(folders.value['folder1'])
   }
 
   // Updates the Text. Set the current text into the actual folder note text
@@ -79,7 +115,6 @@ export const useNoteStore = defineStore('noteStore', () => {
     o[id].name = note
 
     await updateNotes()
-    console.log('Text Updated')
   }
 
 
@@ -100,6 +135,27 @@ export const useNoteStore = defineStore('noteStore', () => {
     await updateNotes()
   }
 
+
+  // deleteNote
+  const deleteNote = async () => {
+    const sectionName = curTextarea.value.sectionName
+    const noteId = curTextarea.value.id
+
+    const o = folders.value[currentFolder.value].section[sectionName].note
+    const s = folders.value[currentFolder.value].section[sectionName].note_sort
+
+    delete o[noteId]
+    
+    // Delete section_sort element
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === noteId) {
+        s.splice(i, 1)
+      }
+    }
+    await updateNotes()
+    
+  
+  }
 
 
 
@@ -154,7 +210,6 @@ export const useNoteStore = defineStore('noteStore', () => {
     for (let i = 0; i < s.length; i++) {
       if (s[i] === origSectionName) {
         s[i] = sectionName
-        console.log("DONE", s[i])
         break
       }
     }
@@ -172,13 +227,28 @@ export const useNoteStore = defineStore('noteStore', () => {
     return true
   }
 
+
+  const createNewFolder = async (folderName: string) => {
+    console.log(folders.value)
+
+    if (folderName in folders.value) {
+      console.log("Its there")
+      return
+    }
+    console.log("Done")
+  }
+
   return {
+    init,
     getNotes,
     updateNotes,
+    deleteNote,
     deleteSection,
     renameSection,
     createSection,
     updateText,
+    createNewFolder,
+    createNewUserNote,
     folders,
     curTextarea,
     loaded,

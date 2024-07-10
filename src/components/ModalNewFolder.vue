@@ -5,11 +5,11 @@
     </template>
 
     <template #message>
-      <input type="text" class="input" />
+      <input type="text" class="input" v-model="inputval"/>
     </template>
 
     <template #buttons>
-      <ActiveButton class="button underline" color="light">Create</ActiveButton>
+      <ActiveButton class="button underline" color="light" @click="createNewFolder">Create</ActiveButton>
       <ActiveButton class="button" color="light" @click="showModal = false">Cancel</ActiveButton>
     </template>
   </ModalBase>
@@ -20,13 +20,19 @@ import ModalBase from '@/components/ModalBase.vue';
 import ActiveButton from '@/components/ActiveButton.vue';
 
 import { ref, type Ref } from 'vue';
-
+import { useNoteStore } from '@/stores/noteStore';
 
 const showModal: Ref<boolean> = ref(false)
-
+const noteStore = useNoteStore()
+const inputval: Ref<string> = ref('')
 
 const handleShowModal = () => {
   showModal.value = true
+}
+
+const createNewFolder = () => {
+  console.log(inputval.value)
+  noteStore.createNewFolder(inputval.value)
 }
 
 

@@ -6,11 +6,12 @@
     <ModalDeleteFolder :id="deleteModalId" ref="deleteModalRef" />
 
     <ul class="manage">
-      <template v-for="num in 100" :key="num">
+      <template v-for="(folderValue, folderId) in noteStore.folders" :key="folderId">
+        <!-- <pre>{{ folderV }}</pre> -->
         <div class="folder-link">
-          <RouterLink class="router-link router-link__light" to="/">Folder name {{ num }}</RouterLink>
+          <RouterLink  class="router-link router-link__light" :to="'note/'+folderId" @click="afterNavigation">{{ folderValue.title }}</RouterLink>
           <span class="delete-folder">
-            <IconTrash v-show="isShowEdit" @click="handleDeleteModal(`${num}`)" />
+            <IconTrash v-show="isShowEdit"/>
 
           </span>
         </div>
@@ -24,7 +25,18 @@
 import IconTrash from '@/assets/images/IconTrash.vue';
 import ModalDeleteFolder from './ModalDeleteFolder.vue';
 
-import { ref, type Ref } from 'vue';
+import { ref, type Ref, nextTick } from 'vue';
+import { useNoteStore } from '@/stores/noteStore'
+
+
+const noteStore = useNoteStore()
+
+// async function afterNavigation() {
+//   await nextTick(async () => {
+//     // Your code to run after navigation
+//     await noteStore.getNotes()
+//   });
+// }
 
 defineProps({
   isShowEdit: {

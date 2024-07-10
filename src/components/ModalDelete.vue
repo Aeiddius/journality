@@ -1,7 +1,7 @@
 <template>
   <ModalBase v-model="showModal" v-if="showModal" class="delete-modal">
     <template #header>
-      <h3>Delete Folder</h3>
+      <h3>Delete</h3>
     </template>
 
     <template #message>
@@ -10,7 +10,7 @@
     </template>
 
     <template #buttons>
-      <ActiveButton class="button underline" color="light" @click="deleteSection">I'm sure</ActiveButton>
+      <ActiveButton class="button underline" color="light" @click="deleteItem">I'm sure</ActiveButton>
       <ActiveButton class="button" color="light" @click="showModal = false">Cancel</ActiveButton>
     </template>
   </ModalBase>
@@ -23,29 +23,59 @@ import { useNoteStore } from '@/stores/noteStore'
 
 import { ref, type Ref } from 'vue';
 
+const emit = defineEmits<{
+  (e: 'sidebarInit' ): void
+}>()
+
 const noteStore = useNoteStore()
 
 const message: Ref<string> = ref('')
+
 const sectionName: Ref<string> = ref('')
+
+
 const showModal: Ref<boolean> = ref(false)
+const mode: Ref<string> = ref('')
 
-
-const handleShowModal = (msg: string, sN: string) => {
+const handleShowSection = (msg: string, section: string) => {
   showModal.value = true
   message.value = msg
-  sectionName.value = sN
+  sectionName.value = section
+  mode.value = 'section'
 }
+
+
+const handleShowNote = (msg: string) => {
+  showModal.value = true
+  message.value = msg
+  mode.value = 'note'
+}
+
+const deleteItem = async () => {
+  if (mode.value == 'section') {
+    showModal.value = false
+    await noteStore.deleteSection(sectionName.value)
+    return
+  }
+  
+  if (mode.value == 'note') {
+    showModal.value = false
+    await noteStore.deleteNote()
+    console.log("asdasdasd")
+    emit('sidebarInit')
+    return
+  }
+}
+
 
 
 defineExpose({
-  handleShowModal
+  handleShowSection,
+  handleShowNote
 })
 
 
-const deleteSection = async () => {
-  showModal.value = false
-  await noteStore.deleteSection(sectionName.value)
-}
+
 
 </script>
 

@@ -1,9 +1,13 @@
 <template>
+  <ModalDelete ref="deleteNoteModalref" @sidebarInit="sidebarRef.openSidebarInit()"/>
+
   <div class="wrapper">
-    <NoteSideBar />
+    <NoteSideBar ref="sidebarRef"/>
 
     <div class="content">
-      <NoteTextarea />
+      <NoteTextarea @activateDelete="(msg: string) => deleteNoteModalref.handleShowNote(msg)"
+
+      />
 
     </div>
 
@@ -14,13 +18,12 @@
 <script lang="ts" setup>
 import NoteSideBar from '@/components/NoteSideBar.vue';
 import NoteTextarea from '@/components/NoteTextarea.vue';
-// import { useRoute } from 'vue-router'
-// import { useNoteStore } from '@/stores/noteStore'
-
-// const noteStore = useNoteStore()
-// const route = useRoute()
+import ModalDelete from '@/components/ModalDelete.vue';
+import { ref } from 'vue';
 
 
+const deleteNoteModalref = ref()
+const sidebarRef = ref()
 
 
 </script>

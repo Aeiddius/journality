@@ -19,12 +19,16 @@
         <IconNoteSection :size="18" @click="modals.handleNewSection()" />
         <IconNoteSearch :size="18" @click="noteStore.updateNotes()" />
       </div>
+
+      <pre>
+        <!-- {{curFolder }} -->
+      </pre>
     </div>
 
     <!-- <pre>{{ noteStore.folders[$route.params.folderId as string]['sections'] }}</pre> -->
 
     <!-- Sections -->
-    <template v-if="noteStore.loaded">
+    <template v-if="noteStore.loaded && loaded">
 
       <div class="section" v-for="(sectionName) in curFolder.section_sort" :key="sectionName">
         <div class="section-name noselect">
@@ -36,13 +40,13 @@
           <div class="side">
             <IconNoteCreate :size="18" @click="modals.handleNewNote(sectionName)" />
             <SectionMenu :sectionName="sectionName" @activateRename="(val) => renameModalref.handleShowModal(val)"
-              @activateDelete="(msg: string, sN: string) => deleteSectionModalref.handleShowModal(msg, sN)" />
+              @activateDelete="(msg: string, sN: string) => deleteSectionModalref.handleShowSection(msg, sN)" />
 
           </div>
         </div>
-
+        <!-- :class="{ 'hide': sectionName != curFolder.last_section }" -->
         <!-- Section List -->
-        <ul class="section-block show noselect" :class="{ 'hide': sectionName != curFolder.last_section }"
+        <ul class="section-block show noselect" 
           :id="`section-${sectionName}`">
 
           <!-- Note List -->
@@ -53,7 +57,7 @@
               class="chapter-block">
               <NoteSideChapter :text="curFolder.section[sectionName].note[noteId].value"
                 :noteName="curFolder.section[sectionName].note[noteId].name"
-                @click="handleOpenText(sectionName, noteId)" />
+                @click="handleOpenText(sectionName, noteId, true)" />
               <hr>
             </li>
           </template>
@@ -88,7 +92,7 @@ import ModalDelete from './ModalDelete.vue';
 import { useTimestamp } from '@/composables/useTimestamp'
 
 // Import Vue
-import { ref, watch } from 'vue';
+import { ref, watch, type Ref, onMounted} from 'vue';
 
 // Modals
 const createModalRef = ref()
@@ -122,19 +126,31 @@ const route = useRoute()
 const router = useRouter()
 const folderId: string = route.params.folderId as string
 
-let loaded: boolean = false
+let loaded: Ref<boolean> = ref(false)
 let curFolder: Folder
 
 noteStore.currentFolder = folderId
 
 // Initial Setup 
 watch(noteStore, () => {
+  console.log("WATCH: ", noteStore.loaded)
   if (noteStore.loaded != true) return;
-  if (loaded == true) return;
+  if (loaded.value == true) return;
   curFolder = noteStore.folders[folderId]
   openSidebarInit()
-  loaded = true;
+  loaded.value = true;
+
+  console.log("LOADED")
 })
+
+
+onMounted(() => {
+  curFolder = noteStore.folders[folderId]
+  openSidebarInit()
+  loaded.value = true;
+
+  console.log("LOADED")
+}) 
 
 const openSidebarInit = () => {
   const querySection: string = route.query.s as string
@@ -209,7 +225,9 @@ const handleOpenText = async (sectionName: string, noteId: string, dontUpdate: b
   }
 }
 
-
+defineExpose({
+  openSidebarInit
+})
 </script>
 
 

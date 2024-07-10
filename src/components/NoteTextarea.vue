@@ -54,11 +54,11 @@ const wordCount = computed(() => {
 })
 
 const emit = defineEmits<{
-  (e: 'activateDelete', message: string, sectionName: string): void
+  (e: 'activateDelete', message: string): void
 }>()
 
 const deleteNote = () => {
-  emit('activateDelete', `Delete ${noteStore.curTextarea.noteName}?`, noteStore.curTextarea.id)
+  emit('activateDelete', `Delete ${noteStore.curTextarea.noteName}?`)
 }
 
 
@@ -111,6 +111,8 @@ const deleteNote = () => {
   display: flex;
   align-items: center;
   gap: 5px;
+  justify-content: flex-end;
+  text-align: right;
 }
 
 </style>

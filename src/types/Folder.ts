@@ -21,6 +21,7 @@ interface Folder {
     [key: string]: Section
   }
   section_sort: string[]
+  title: string
 }
 
 export type { Folder, Section, Note }

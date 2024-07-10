@@ -13,7 +13,7 @@
       <div class="title">
         <div>
           <h3>Welcome Back</h3>
-          <h1 class="font-bold ">{{ authStore.user.name }}</h1>
+          <!-- <h1 class="font-bold ">{{ authStore.user.name }}</h1> -->
         </div>
 
         <div class="action-icons">
@@ -28,7 +28,7 @@
       <!-- Content: Folder and Infos -->
       <div class="content">
         <UserFolders :isShowEdit="showEdit" />
-        <UserInfo />
+        <!-- <UserInfo /> -->
       </div>
 
     </div>
@@ -48,9 +48,11 @@ import IconGear from '@/assets/images/IconGear.vue';
 
 import { ref, onMounted, type Ref, } from 'vue';
 import { useAuthStore } from '@/stores/authStore'
+import { useNoteStore } from '@/stores/noteStore'
 
 
 const authStore = useAuthStore()
+const noteStore = useNoteStore()
 
 const showEdit: Ref<boolean> = ref(false)
 
@@ -86,6 +88,9 @@ h3 {
 
 .wrapper {
   padding: 30px;
+
+  max-width: 600px;
+  width: 90%;
 }
 
 .title {
