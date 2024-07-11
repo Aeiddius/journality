@@ -38,9 +38,9 @@ const handleInput = (delay: number = 1500) => {
 const noteStore = useNoteStore()
 
 
-const saveText = () => {
+const saveText = async () => {
   console.log('User stopped typing. Perform the desired action here.');
-  noteStore.updateText()
+  await noteStore.updateText()
 }
 
 const wordCount = computed(() => {

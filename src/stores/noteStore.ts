@@ -1,7 +1,7 @@
 import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/js/firebase'
-import { collection, getDocs, setDoc, doc, Timestamp } from 'firebase/firestore'
+import { collection, getDocs, setDoc, updateDoc, doc, Timestamp } from 'firebase/firestore'
 
 // Import Types
 import { type Folder } from '@/types/Folder'
@@ -32,11 +32,14 @@ export const useNoteStore = defineStore('noteStore', () => {
   let noteRef = collection(db, 'users', 'aeid-13', 'folders')
 
 
-  const init = () => {
+  const init = async () => {
     const authStore = useAuthStore()   
 
     noteRef = collection(db, "users", authStore.user.id, "folders")
-    console.log("FOLDER VALUE: ", folders.value)
+    console.log("FOLDER VALUE: ", Object.keys(folders.value).length)
+
+   
+    console.log("GOT")
     getNotes()
   }
 
@@ -44,13 +47,13 @@ export const useNoteStore = defineStore('noteStore', () => {
     // const authStore = useAuthStore()   
 
     // noteRef = collection(db, "users", authStore.user.id, "folders")
-
+    currentFolder.value = 'default'
     folders.value['default'] = {
       title: 'Test Folder',
       last_note: '',
       last_section: '',
       section: {
-        'section_1': {
+        'Section 1': {
           note: { '8176rm1': {
             date_created: Timestamp.now(),
             date_updated: Timestamp.now(),
@@ -60,7 +63,7 @@ export const useNoteStore = defineStore('noteStore', () => {
           note_sort: ['8176rm1']
         }
       },
-      section_sort: []
+      section_sort: ['Section 1']
     }
     console.log("registered")
     await updateNotes()
@@ -74,6 +77,10 @@ export const useNoteStore = defineStore('noteStore', () => {
       folders.value[doc.id] = doc.data() as Folder
     })
 
+    if (Object.keys(folders.value).length == 0) {
+      await createNewUserNote()
+    }
+
     loaded.value = true
   }
 
@@ -84,6 +91,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     await setDoc(doc(noteRef, folderName), {
       ...folders.value[folderName]
     })
+    console.log("WTF", folders)
   }
 
   // Updates the Text. Set the current text into the actual folder note text

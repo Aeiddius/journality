@@ -31,12 +31,13 @@ import { useNoteStore } from '@/stores/noteStore'
 
 const noteStore = useNoteStore()
 
-// async function afterNavigation() {
-//   await nextTick(async () => {
-//     // Your code to run after navigation
-//     await noteStore.getNotes()
-//   });
-// }
+async function afterNavigation() {
+  // await nextTick(async () => {
+  //   // Your code to run after navigation
+  //   await noteStore.getNotes()
+  // });
+  console.log()
+}
 
 defineProps({
   isShowEdit: {

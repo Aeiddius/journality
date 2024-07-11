@@ -146,6 +146,8 @@ watch(noteStore, () => {
 
 onMounted(() => {
   curFolder = noteStore.folders[folderId]
+  console.log("CUR FUCKING GOLDER: ", curFolder)
+
   openSidebarInit()
   loaded.value = true;
 
@@ -188,6 +190,7 @@ const openSidebarInit = () => {
 }
 
 const openFirstSectionNote = () => {
+  console.log("THISSSS: ", curFolder)
   router.push({ path: route.path, query: {} });
 
   let firstSection: string = curFolder.section_sort[0];
