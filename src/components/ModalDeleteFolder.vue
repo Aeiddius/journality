@@ -5,12 +5,12 @@
     </template>
 
     <template #message>
-      <p>Are you sure you want to delete <span class="font-bold">Folder name {{ id }}</span>
+      <p>Are you sure you want to delete <span class="font-bold">{{ folderName }}?</span>
       </p>
     </template>
 
     <template #buttons>
-      <ActiveButton class="button underline" color="light">I'm sure</ActiveButton>
+      <ActiveButton class="button underline" color="light" @click="deleteFolder()">I'm sure</ActiveButton>
       <ActiveButton class="button" color="light" @click="showModal = false">Cancel</ActiveButton>
     </template>
   </ModalBase>
@@ -21,26 +21,30 @@ import ModalBase from '@/components/ModalBase.vue';
 import ActiveButton from '@/components/ActiveButton.vue';
 
 import { ref, type Ref } from 'vue';
+import { useNoteStore } from '@/stores/noteStore';
 
-
-defineProps({
-  id: {
-    type: String,
-    required: true
-  }
-})
+const folderId: Ref<string> = ref('')
+const folderName: Ref<string> = ref('')
 
 const showModal: Ref<boolean> = ref(false)
+const noteStore = useNoteStore()
 
-
-const handleShowModal = () => {
+const handleShowModal = (id: string, name: string) => {
   showModal.value = true
+  folderId.value = id
+  folderName.value = name
 }
 
 
 defineExpose({
   handleShowModal
 })
+
+const deleteFolder = () => {
+  console.log("GIVEN: ", folderId.value)
+  noteStore.deleteFolder(folderId.value)
+  showModal.value = false
+}
 
 </script>
 

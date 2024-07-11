@@ -47,6 +47,7 @@ export const useAuthStore = defineStore('authStore', () => {
           // router.push('/auth')
 
           noteStore.folders = {}
+          noteStore.folders_sort = []
           router.push('/')
           // noteStore.clearNotes()
         }

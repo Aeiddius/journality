@@ -5,7 +5,7 @@
     </template>
 
     <template #message>
-      <input type="text" class="input" v-model="inputval"/>
+      <input type="text" class="input" v-model="inputval" @keydown.esc="showModal = false" @keydown.enter="createNewFolder"/>
     </template>
 
     <template #buttons>
@@ -33,6 +33,7 @@ const handleShowModal = () => {
 const createNewFolder = () => {
   console.log(inputval.value)
   noteStore.createNewFolder(inputval.value)
+  showModal.value = false
 }
 
 

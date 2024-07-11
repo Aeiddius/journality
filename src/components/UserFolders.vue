@@ -3,16 +3,18 @@
 
 
   <div>
-    <ModalDeleteFolder :id="deleteModalId" ref="deleteModalRef" />
+    <ModalDeleteFolder name="" ref="deleteModalRef" />
 
     <ul class="manage">
-      <template v-for="(folderValue, folderId) in noteStore.folders" :key="folderId">
+      
+      <template v-for="folderId in noteStore.folders_sort" :key="folderId">
         <!-- <pre>{{ folderV }}</pre> -->
+    
         <div class="folder-link">
-          <RouterLink  class="router-link router-link__light" :to="'note/'+folderId" @click="afterNavigation">{{ folderValue.title }}</RouterLink>
-          <span class="delete-folder">
-            <IconTrash v-show="isShowEdit"/>
-
+          <RouterLink class="router-link router-link__light" :to="'note/' + folderId" @click="afterNavigation">
+          {{noteStore.folders[folderId].title }}</RouterLink>
+          <span class="delete-folder" v-if="noteStore.folders_sort.length != 1">
+            <IconTrash v-show="isShowEdit" @click="handleDeleteModal(folderId, noteStore.folders[folderId].title )" />
           </span>
         </div>
 
@@ -49,11 +51,10 @@ defineProps({
 
 // Delete Modal
 const deleteModalRef = ref()
-const deleteModalId: Ref<string> = ref('')
 
-const handleDeleteModal = (id: string): void => {
-  deleteModalId.value = id
-  deleteModalRef.value.handleShowModal()
+const handleDeleteModal = (id: string, name: string): void => {
+  deleteModalRef.value.handleShowModal(id, name)
+  console.log("HERE: ", id, name)
 }
 
 

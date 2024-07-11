@@ -11,18 +11,15 @@
   <div class="sidebar scrollbar-dark">
     <div class="header">
       <div class="title">
-        <p class="folder-name">{{ folderId }}</p>
+        <p class="folder-name">{{ noteStore.folders[folderId].title }}</p>
         <p class="app-name">Journality</p>
       </div>
       <div class="icons">
         <IconNoteReturn :size="24" @click="$router.push(`/user`)" />
         <IconNoteSection :size="18" @click="modals.handleNewSection()" />
-        <IconNoteSearch :size="18" @click="noteStore.updateNotes()" />
+        <!-- <IconNoteSearch :size="18" @click="noteStore.updateNotes()" /> -->
       </div>
 
-      <pre>
-        <!-- {{curFolder }} -->
-      </pre>
     </div>
 
     <!-- <pre>{{ noteStore.folders[$route.params.folderId as string]['sections'] }}</pre> -->
@@ -311,8 +308,10 @@ $padding: 10px;
 
 .icons {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 5px;
+  // width: 100%;
 }
 
 hr {

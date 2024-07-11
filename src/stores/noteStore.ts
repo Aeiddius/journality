@@ -1,7 +1,8 @@
 import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/js/firebase'
-import { collection, getDocs, setDoc, updateDoc, doc, Timestamp } from 'firebase/firestore'
+import { collection, getDocs, setDoc, updateDoc,
+   deleteField, getDoc, doc, Timestamp, FieldPath, deleteDoc  } from 'firebase/firestore'
 
 // Import Types
 import { type Folder } from '@/types/Folder'
@@ -10,14 +11,17 @@ import { type Textarea } from '@/types/Textarea'
 import { useTimestamp } from '@/composables/useTimestamp'
 
 import { useAuthStore } from '@/stores/authStore'
+import { useGenerateId } from '@/composables/useGenerateId'
 
 // Main Function
 export const useNoteStore = defineStore('noteStore', () => {
   // Set Variables
   const loaded: Ref<boolean> = ref(false)
   const folders: Ref<{ [key: string]: Folder }> = ref({})
-
+  const folders_sort: Ref<string[]> = ref([])
   const currentFolder: Ref<string> = ref('')
+
+  const authStore = useAuthStore()
 
   const curTextarea: Ref<Textarea> = ref({
     id: '',
@@ -31,46 +35,56 @@ export const useNoteStore = defineStore('noteStore', () => {
   // Firebase Note Reference
   let noteRef = collection(db, 'users', 'aeid-13', 'folders')
 
-
   const init = async () => {
-    const authStore = useAuthStore()   
 
-    noteRef = collection(db, "users", authStore.user.id, "folders")
-    console.log("FOLDER VALUE: ", Object.keys(folders.value).length)
+    noteRef = collection(db, 'users', authStore.user.id, 'folders')
+    console.log('FOLDER VALUE: ', Object.keys(folders.value).length)
 
-   
-    console.log("GOT")
-    getNotes()
+    console.log('GOT')
+    await getFolders()
+    await getFolderSort()
+    console.log(folders_sort.value)
   }
 
-  const createNewUserNote = async () => {
-    // const authStore = useAuthStore()   
+  const getFolderSort = async () => {
+    const docRef = doc(db, 'users', authStore.user.id)
+    const docSnap = await getDoc(docRef)
 
-    // noteRef = collection(db, "users", authStore.user.id, "folders")
-    currentFolder.value = 'default'
-    folders.value['default'] = {
-      title: 'Test Folder',
+    if (docSnap.exists()) {
+      folders_sort.value = docSnap.data().folders_sort
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log('No such document!')
+    }
+  }
+
+
+  const createFolder = (folderTitle: string, folderId: string) => {
+    const noteId = useGenerateId()
+
+    folders.value[folderId] = {
+      title: `${folderTitle}`,
       last_note: '',
       last_section: '',
       section: {
-        'Section 1': {
-          note: { '8176rm1': {
-            date_created: Timestamp.now(),
-            date_updated: Timestamp.now(),
-            name: 'note_1',
-            value: 'First note'
-          }},
-          note_sort: ['8176rm1']
+        'Section': {
+          note: {},
+          note_sort: [noteId]
         }
       },
-      section_sort: ['Section 1']
+      section_sort: ['Section']
     }
-    console.log("registered")
-    await updateNotes()
+
+    folders.value[folderId].section['Section'].note[noteId] = {
+      date_created: Timestamp.now(),
+      date_updated: Timestamp.now(),
+      name: 'Note',
+      value: 'First note'
+    }
   }
 
   // Get Notes from the database
-  const getNotes = async () => {
+  const getFolders = async () => {
     const querySnapshot = await getDocs(noteRef)
 
     querySnapshot.forEach((doc) => {
@@ -78,20 +92,34 @@ export const useNoteStore = defineStore('noteStore', () => {
     })
 
     if (Object.keys(folders.value).length == 0) {
-      await createNewUserNote()
+      const folderId = useGenerateId()
+
+      currentFolder.value = folderId
+      createFolder('default', folderId)
+      await updateNotes()
+      console.log('registered')
     }
 
     loaded.value = true
   }
 
   // Updates Note Databse
-  const updateNotes = async () => {
+  const updateNotes = async (isAll: boolean = false) => {
     // folders.value['folder1'].section['section1'].note['pad1'].value = 'asdas'
     const folderName: string = currentFolder.value
-    await setDoc(doc(noteRef, folderName), {
-      ...folders.value[folderName]
-    })
-    console.log("WTF", folders)
+    
+    if (isAll == false) {
+      await setDoc(doc(noteRef, folderName), {
+        ...folders.value[folderName]
+      })
+    } else if (isAll == true) {
+      for (const fd in folders.value) {
+        await setDoc(doc(noteRef, fd), {
+          ...folders.value[fd]
+        })
+      }
+    }
+    console.log('WTF', folders)
   }
 
   // Updates the Text. Set the current text into the actual folder note text
@@ -125,15 +153,13 @@ export const useNoteStore = defineStore('noteStore', () => {
     await updateNotes()
   }
 
-
   // Delete Section
   const deleteSection = async (sectionName: string) => {
-
     const o = folders.value[currentFolder.value].section
     const s = folders.value[currentFolder.value].section_sort
-  
+
     delete o[sectionName]
-  
+
     // Delete section_sort element
     for (let i = 0; i < s.length; i++) {
       if (s[i] === sectionName) {
@@ -142,7 +168,6 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
     await updateNotes()
   }
-
 
   // deleteNote
   const deleteNote = async () => {
@@ -153,7 +178,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     const s = folders.value[currentFolder.value].section[sectionName].note_sort
 
     delete o[noteId]
-    
+
     // Delete section_sort element
     for (let i = 0; i < s.length; i++) {
       if (s[i] === noteId) {
@@ -161,13 +186,9 @@ export const useNoteStore = defineStore('noteStore', () => {
       }
     }
     await updateNotes()
-    
-  
   }
 
-
-
-  // Create 
+  // Create
   const createSection = async (sectionName: string, hideModal: Function) => {
     const o = folders.value[currentFolder.value].section
     const s = folders.value[currentFolder.value].section_sort
@@ -179,12 +200,11 @@ export const useNoteStore = defineStore('noteStore', () => {
 
     // Create new section
     o[sectionName] = {
-      note: {
-      }, note_sort: []
+      note: {},
+      note_sort: []
     }
     // Add new section to section sort
     s.push(sectionName)
-
 
     hideModal()
 
@@ -193,9 +213,12 @@ export const useNoteStore = defineStore('noteStore', () => {
     return true
   }
 
-
-  const renameSection = async (sectionName: string, origSectionName: string, 
-                               isError: Function, hideModal: Function) => {
+  const renameSection = async (
+    sectionName: string,
+    origSectionName: string,
+    isError: Function,
+    hideModal: Function
+  ) => {
     const o = folders.value[currentFolder.value].section
     const s = folders.value[currentFolder.value].section_sort
 
@@ -203,17 +226,17 @@ export const useNoteStore = defineStore('noteStore', () => {
     if (sectionName == origSectionName) {
       return false
     }
-  
+
     // Don't create if section already exists
     if (s.includes(sectionName)) {
       isError()
       return false
     }
-  
+
     // Rename section map entry
     o[sectionName] = o[origSectionName]
     delete o[origSectionName]
-  
+
     // Rename section_sort element
     for (let i = 0; i < s.length; i++) {
       if (s[i] === origSectionName) {
@@ -221,13 +244,12 @@ export const useNoteStore = defineStore('noteStore', () => {
         break
       }
     }
-  
+
     // Replace last_section if it's the current entry
     if (folders.value[currentFolder.value].last_section === origSectionName) {
       folders.value[currentFolder.value].last_section = sectionName
     }
-  
-    
+
     hideModal()
 
     await updateNotes()
@@ -235,20 +257,61 @@ export const useNoteStore = defineStore('noteStore', () => {
     return true
   }
 
-
   const createNewFolder = async (folderName: string) => {
     console.log(folders.value)
 
-    if (folderName in folders.value) {
-      console.log("Its there")
-      return
+    // Check if folder exists already if yes retrn
+    for (const fd in folders.value) {
+      if (folders.value[fd].title === folderName) {
+        console.log('Folder exist already')
+        return false
+      }
     }
-    console.log("Done")
+
+    // Else create
+    let folderId = useGenerateId()
+    while (folderId in folders_sort.value) {
+      folderId = useGenerateId()
+    }
+
+    createFolder(folderName, folderId)
+    console.log(folders.value)
+    folders_sort.value.push(folderId)
+
+    await updateNotes(true)
+    await updateFolderSort()
+    
+
+    console.log("Does not exists yet")
+    // if (folderName in folders.value) {
+    //   console.log('Its there')
+    //   return
+    // }
+
+    console.log('Done')
   }
+
+  const updateFolderSort = async() => {
+    await setDoc(doc(db, 'users', authStore.user.id), {folders_sort: folders_sort.value});
+  }
+
+  const deleteFolder = async (folderId: string) => {
+    // delete folders.value[folderId]
+
+    await deleteDoc(doc(db, 'users', authStore.user.id, 'folders', folderId));
+
+    folders_sort.value = folders_sort.value.filter(item => item !== folderId);
+    
+    await updateFolderSort()
+    await getFolders()
+
+    
+  } 
+
 
   return {
     init,
-    getNotes,
+    getFolders,
     updateNotes,
     deleteNote,
     deleteSection,
@@ -256,10 +319,11 @@ export const useNoteStore = defineStore('noteStore', () => {
     createSection,
     updateText,
     createNewFolder,
-    createNewUserNote,
+    deleteFolder,
     folders,
     curTextarea,
     loaded,
-    currentFolder
+    currentFolder,
+    folders_sort
   }
 })

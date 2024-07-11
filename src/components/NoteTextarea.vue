@@ -2,7 +2,7 @@
   <div class="textarea">
 
     <div class="title">
-      {{ noteStore.curTextarea.folderName }} > {{ noteStore.curTextarea.sectionName }}
+      {{ noteStore.folders[noteStore.currentFolder].title }} > {{ noteStore.curTextarea.sectionName }}
     </div>
 
     <input class="chapter-name" type="text" v-model="noteStore.curTextarea.noteName" placeholder="Note title"

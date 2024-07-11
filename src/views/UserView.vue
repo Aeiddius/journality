@@ -19,7 +19,7 @@
         <div class="action-icons">
           <IconAddFolder @click="handleNewFolder" />
           <IconEdit :thickness="showEdit === true ? 1 : 0" @click="showEdit = !showEdit" />
-          <IconGear />
+          <!-- <IconGear /> -->
         </div>
       </div>
 
