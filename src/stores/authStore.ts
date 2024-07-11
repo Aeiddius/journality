@@ -45,6 +45,8 @@ export const useAuthStore = defineStore('authStore', () => {
           user.value.id = ''
           user.value.email = ''
           // router.push('/auth')
+
+          noteStore.folders = {}
           router.push('/')
           // noteStore.clearNotes()
         }
