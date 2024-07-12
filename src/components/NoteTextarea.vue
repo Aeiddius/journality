@@ -1,7 +1,7 @@
 <template>
   <div class="textarea">
 
-    <div class="title">
+    <div class="title" v-if="authStore.loaded">
       {{ noteStore.folders[noteStore.currentFolder].title }} > {{ noteStore.curTextarea.sectionName }}
     </div>
 
@@ -13,7 +13,9 @@
 
     <div class="stats">
       <span>Last Edited {{ noteStore.curTextarea.dateUpdated }} </span>
-      <span class="center">{{ wordCount }} <IconTrash @click="deleteNote"/></span>
+      <span class="center">{{ wordCount }}
+        <IconTrash @click="deleteNote" />
+      </span>
     </div>
 
   </div>
@@ -23,6 +25,7 @@
 <script lang="ts" setup>
 import IconTrash from '@/assets/images/IconTrash.vue';
 
+import { useAuthStore } from '@/stores/authStore'
 import { useNoteStore } from '@/stores/noteStore'
 import { computed } from 'vue';
 let typingTimeout: number | undefined;
@@ -35,6 +38,7 @@ const handleInput = (delay: number = 1500) => {
   }, delay);
 };
 
+const authStore = useAuthStore()
 const noteStore = useNoteStore()
 
 
@@ -70,7 +74,7 @@ const deleteNote = () => {
   padding: 50px 70px;
   padding-bottom: 40px;
   // background-color: red;
-
+  transition: 1s all ease;
   display: flex;
   flex-direction: column;
 
@@ -85,6 +89,7 @@ const deleteNote = () => {
 
   .title {
     text-align: center;
+    color: lighten($primary, 30%);
   }
 
   textarea {
@@ -115,4 +120,22 @@ const deleteNote = () => {
   text-align: right;
 }
 
+
+@media (max-width: 800px) {
+  .textarea {
+    width: 90%;
+    padding: 30px 20px;
+    padding-bottom: 20px;
+  }
+
+  .chapter-name { 
+    margin-top: 20px !important;
+  }
+
+  .stats { 
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
 </style>

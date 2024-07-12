@@ -4,11 +4,11 @@
   <ModalRenameSection ref="renameModalref" @updateInit="openSidebarInit" />
   <ModalDelete ref="deleteSectionModalref" />
 
-  <div class="loading" :class="[!noteStore.loaded ? 'show-loading' : '']">
+  <div class="loading" :class="[!loaded ? 'show-loading' : '']">
     <h1 class="noselect">Loading</h1>
   </div>
 
-  <div class="sidebar scrollbar-dark">
+  <div class="sidebar scrollbar-dark" v-if="loaded">
     <div class="header">
       <div class="title">
         <p class="folder-name">{{ noteStore.folders[folderId].title }}</p>
@@ -25,7 +25,7 @@
     <!-- <pre>{{ noteStore.folders[$route.params.folderId as string]['sections'] }}</pre> -->
 
     <!-- Sections -->
-    <template v-if="noteStore.loaded && loaded">
+    <template v-if="loaded">
 
       <div class="section" v-for="(sectionName) in curFolder.section_sort" :key="sectionName">
         <div class="section-name noselect">
@@ -43,8 +43,7 @@
         </div>
         <!-- :class="{ 'hide': sectionName != curFolder.last_section }" -->
         <!-- Section List -->
-        <ul class="section-block show noselect" 
-          :id="`section-${sectionName}`">
+        <ul class="section-block show noselect" :id="`section-${sectionName}`">
 
           <!-- Note List -->
           <template v-if="curFolder.section[sectionName].note_sort.length != 0">
@@ -89,7 +88,7 @@ import ModalDelete from './ModalDelete.vue';
 import { useTimestamp } from '@/composables/useTimestamp'
 
 // Import Vue
-import { ref, watch, type Ref, onMounted} from 'vue';
+import { ref, watch, type Ref, onMounted } from 'vue';
 
 // Modals
 const createModalRef = ref()
@@ -114,52 +113,68 @@ const modals = {
 
 // Logic
 
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type RouteLocationNormalized } from 'vue-router'
 import { useNoteStore } from '@/stores/noteStore'
 import type { Note, Folder } from '@/types/Folder'
+import { useAuthStore } from '@/stores/authStore'
+
+
+
 
 const noteStore = useNoteStore()
 const route = useRoute()
 const router = useRouter()
 const folderId: string = route.params.folderId as string
 
-let loaded: Ref<boolean> = ref(false)
+const authStore = useAuthStore()
+
+const loaded: Ref<boolean> = ref(false)
+const dontUseWatch: Ref<boolean> = ref(false)
 let curFolder: Folder
+
 
 noteStore.currentFolder = folderId
 
 // Initial Setup 
-watch(noteStore, () => {
-  console.log("WATCH: ", noteStore.loaded)
+watch(noteStore, async () => {
+  if (dontUseWatch.value === true) {
+    return
+  }
   if (noteStore.loaded != true) return;
   if (loaded.value == true) return;
   curFolder = noteStore.folders[folderId]
   openSidebarInit()
   loaded.value = true;
-
-  console.log("LOADED")
 })
 
 
-onMounted(() => {
-  curFolder = noteStore.folders[folderId]
-  console.log("CUR FUCKING GOLDER: ", curFolder)
 
+onMounted(async () => {
+  // Ensures that this mounted isn
+  if (authStore.loaded == false) {
+    return
+  }
+  console.log("text")
+  curFolder = noteStore.folders[folderId]
+  console.log("passed: ", curFolder)
   openSidebarInit()
   loaded.value = true;
+  console.log("Done")
 
-  console.log("LOADED")
-}) 
+  dontUseWatch.value = true
+})
 
 const openSidebarInit = () => {
   const querySection: string = route.query.s as string
   const queryNoteId: string = route.query.n as string
 
+  console.log("1. thus")
   // QUERY MODE. if there's a query chapter/secction in the url
   if (sectionAndNoteExist(querySection, queryNoteId)) {
     handleOpenText((route.query.s as string).trim(), (route.query.n as string).trim())
     return
   }
+  console.log("2. thus")
 
   // LAST MODE. Check if there's a last opened section/note
   let lastSection: string = curFolder.last_section.trim()
@@ -169,6 +184,7 @@ const openSidebarInit = () => {
     handleOpenText(lastSection, lastNoteId)
     return
   }
+  console.log("3. thus")
 
   // FIRST MODE. Get the first section's first note
   if (lastSection === '' || lastNoteId === '' || !sectionAndNoteExist(lastSection, lastNoteId)) {
@@ -261,10 +277,21 @@ $padding: 10px;
 .sidebar {
   background-color: $primary;
   width: 250px;
+  min-width: 250px;
+  max-width: 250px;
   padding: 10px 0px;
   height: 100vh;
   // overflow-y: auto;
   color: white;
+}
+
+@media (max-width: 800px) {
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+  }
+
 }
 
 
